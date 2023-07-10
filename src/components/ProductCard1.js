@@ -122,8 +122,8 @@ const ProductCard1 = (props) => {
             </button>
           </div>
           <div className="product-image">
-            <img src={featured4} className="img-fluid" alt="productimage" />
-            <img src={featured4back} className="img-fluid" alt="productimage" />
+            <img src={featured3} className="img-fluid" alt="productimage" />
+            <img src={featured3back} className="img-fluid" alt="productimage" />
           </div>
 
           <div className="product-details align-items-center">
@@ -168,8 +168,8 @@ const ProductCard1 = (props) => {
             </button>
           </div>
           <div className="product-image">
-            <img src={featured1} className="img-fluid" alt="productimage" />
-            <img src={featured1back} className="img-fluid" alt="productimage" />
+            <img src={featured4} className="img-fluid" alt="productimage" />
+            <img src={featured4back} className="img-fluid" alt="productimage" />
           </div>
 
           <div className="product-details align-items-center">
