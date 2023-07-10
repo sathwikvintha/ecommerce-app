@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { Flickity } from "flickity";
 import Marquee from "react-fast-marquee";
 import ProductCard1 from "../components/ProductCard1";
-import ProductCard3 from "../components/ProductCard3";
-import ProductCard4 from "../components/ProductCard4";
 import sweatshirt from "../images/sweatshirt.png";
 import sweatshirtback from "../images/sweatshirt-back.png";
 import oversizedtshirt from "../images/oversizedtshirt.png";
@@ -226,8 +224,6 @@ const Home = () => {
             <h3 className="section-heading">Featured Collection</h3>
           </div>
           <ProductCard1 />
-          <ProductCard3 />
-          <ProductCard4 />
         </div>
       </Container>
 

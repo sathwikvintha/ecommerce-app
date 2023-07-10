@@ -28,8 +28,8 @@ function App() {
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
-            <Route path="store" element={<OurStore />} />
-            <Route path="store/product/:id" element={<SingleProduct />} />
+            <Route path="product" element={<OurStore />} />
+            <Route path="product/:id" element={<SingleProduct />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="wishlist" element={<Wishlist />} />
