@@ -149,7 +149,7 @@ const SingleProduct = () => {
                 </div>
                 <div className="d-flex align-items-center gap-15">
                   <div>
-                    <a href="">
+                    <a href="#gg">
                       <AiOutlineHeart className="fs-5 me-2 heart" />
                       Add to Wishlist
                     </a>
@@ -165,8 +165,15 @@ const SingleProduct = () => {
                 </div>
                 <div className="d-flex gap-10 align-items-center my-3">
                   <h3 className="product-heading">Product Link : </h3>
-                  <a
-                    href="javascript:void(0);"
+                  {/* <a
+                    href="javascript:void(0)"
+                    onClick={() => {
+                      copyToClipboard(
+                        "https://www.bonkerscorner.com/product/black-tie-me-up-pants/#"
+                      );
+                    }}
+                  > */}
+                  <button
                     onClick={() => {
                       copyToClipboard(
                         "https://www.bonkerscorner.com/product/black-tie-me-up-pants/#"
@@ -174,7 +181,9 @@ const SingleProduct = () => {
                     }}
                   >
                     Copy Product Link
-                  </a>
+                  </button>
+                  {/* Copy Product Link */}
+                  {/* </a> */}
                 </div>
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Sizing : </h3>
@@ -231,7 +240,7 @@ const SingleProduct = () => {
                 </div>
                 {orderedProduct && (
                   <div>
-                    <a className="text-dark text-decoration-underline" href="">
+                    <a className="text-dark text-decoration-underline" href="#">
                       Add on a Review
                     </a>
                   </div>
