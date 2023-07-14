@@ -451,11 +451,12 @@ height: 20px;
 
  .gr-12 .product-card{
   display: flex;
+  flex-direction: row;
   gap: 20px;
  }
 
 .gr-12 .product-card .product-image{
-      width: 100%;
+      width: 100%
     }
 
   .gr-12 .action-bar{
@@ -866,5 +867,67 @@ height: 20px;
 .total-price {
   font-size: 18px;
   color: #777777;
+}
+
+
+.error {
+  color: red;
+}
+
+
+.proddetails h3{
+  font-size: 21px;
+}
+
+.proddetails p {
+  font-size: 20px;
+}
+
+.prodlink button {
+  background-color: white;
+  border: none;
+}
+
+.buttonforwish {
+  color: white;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 400;
+    letter-spacing: 0.3;
+    border-radius: 5px;
+      background-color: gray;
+      width: 100px;
+      height: 40px;
+      padding-top: 10px;
+        padding-bottom: 10px;
+        padding-right: 10px;
+        padding-left: 10px;
+    /* text-transform: uppercase; */
+}
+
+.buttonforwish:hover{
+  background-color: #febd69;
+}
+
+
+.buttonforshipping {
+  color: white;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 400;
+    letter-spacing: 0.3;
+    border-radius: 5px;
+    background-color: gray;
+    width: 135px;
+    height: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border: none;
+}
+
+.buttonforshipping:hover {
+  background-color: #febd69;
 }
 

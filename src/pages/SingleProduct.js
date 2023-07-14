@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import ProductCard1 from "../components/ProductCard1";
@@ -6,16 +6,66 @@ import ProductCard1 from "../components/ProductCard1";
 // import ProductCard4 from "../components/ProductCard4";
 import ReactStars from "react-stars";
 import ReactImageZoom from "react-image-zoom";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineHeart } from "react-icons/ai";
 import Container from "../components/Container";
+import { useDispatch, useSelector } from "react-redux";
+import Color from "./../components/Color";
+import { getAProduct } from "../features/products/productSlice";
+import { toast } from "react-toastify";
+import { addProdToCart, getUserCart } from "../features/user/userSlice";
 
 const SingleProduct = () => {
+  const [color, setColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [alreadyAdded, setAlreadyAdded] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const getProductId = location.pathname.split("/")[2];
+  const dispatch = useDispatch();
+  const productState = useSelector((state) => state.product.singleproduct);
+  console.log(productState);
+
+  const cartState = useSelector((state) => state.auth.cartProducts);
+
+  useEffect(() => {
+    dispatch(getAProduct(getProductId));
+    dispatch(getUserCart());
+  }, []);
+
+  useEffect(() => {
+    for (let index = 0; index < cartState?.length; index++) {
+      if (getProductId === cartState[index]?.productId?._id) {
+        setAlreadyAdded(true);
+      }
+    }
+  });
+
+  const uploadCart = () => {
+    if (color === null) {
+      toast.error("Please Choose the Color");
+      return false;
+    } else {
+      dispatch(
+        addProdToCart({
+          productId: productState?._id,
+          quantity,
+          color,
+          price: productState?.price,
+        })
+      );
+      navigate("/cart");
+    }
+  };
+
   const props = {
     width: 500,
     height: 1000,
     zoomWidth: 500,
-    img: "https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg",
+    img: productState?.images[0]?.url
+      ? productState?.images[0]?.url
+      : "https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg",
   };
   const [orderedProduct, setorderedproduct] = useState(true);
 
@@ -42,53 +92,32 @@ const SingleProduct = () => {
               </div>
             </div>
             <div className="other-product-images d-flex flex-wrap gap-15">
-              <div>
-                <img
-                  src="https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  src="https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  src="https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  src="https://assets.bonkerscorner.com/uploads/2021/06/26101711/Bonkerscorner-Black-Tie-Me-Up-Pants-6694.jpeg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
+              {productState?.images.map((item, index) => {
+                return (
+                  <div>
+                    <img src={item?.url} className="img-fluid" alt="" />
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="col-6">
             <div className="main-product-details">
               <div className="border-bottom">
-                <h2 className="title">Black Tie Me Up Pants</h2>
+                <h2 className="title">{productState?.title}</h2>
               </div>
               <div className="border-bottom py-3">
                 <p className="priceshow">
                   <div>
                     <span class="woocommerce-Price-amount1 amount">
                       <span class="woocommerce-Price-currencySymbol">₹</span>
-                      1199.00
+                      {productState?.price * 2}
                     </span>
                     <span class="woocommerce-Price-amount amount">
                       <span class="woocommerce-Price-currencySymbol">₹</span>
-                      899.00
+                      {productState?.price}
                     </span>
-                    <span className="discount mb-0">-25% OFF</span>
+                    <span className="discount mb-0">-50% OFF</span>
                   </div>
                 </p>
                 <div className="d-flex align-items-center gap-10">
@@ -103,6 +132,36 @@ const SingleProduct = () => {
                 </div>
                 <a href="#review">Add on a Review</a>
               </div>
+              <div className="py-3 proddetails border-bottom">
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Brand :</h3>
+                  <p className="product-data mt-3">{productState?.brand}</p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Category :</h3>
+                  <p className="product-data mt-3">{productState?.category}</p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Tags :</h3>
+                  <p className="product-data mt-3">{productState?.tags}</p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Availability :</h3>
+                  <p className="product-data mt-3">In Stock</p>
+                </div>
+                {alreadyAdded === false && (
+                  <>
+                    <div className="d-flex gap-10 align-items-center my-2">
+                      <h3 className="product-heading">Color :</h3>
+                      <Color
+                        setColor={setColor}
+                        colorData={productState?.color}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
               <div className="border-bottom py-3">
                 <div className="d-flex gap-10 felx-column mt-2 mb-3">
                   <h3 className="product-heading">Size : </h3>
@@ -128,23 +187,44 @@ const SingleProduct = () => {
                   </div>
                 </div>
                 <div className="d-flex gap-10 felx-row mt-2 mb-3">
-                  <h3 className="product-heading">Quantity : </h3>
-                  <div className="quantity">
-                    <input
-                      type="number"
-                      name=""
-                      min={1}
-                      max={10}
-                      className="form-control"
-                      style={{ width: "100px" }}
-                      id=""
-                    />
-                  </div>
-                  <div className="product-heading-button d-flex align-items-center gap-30">
-                    <button className="button border-0" type="submit">
-                      Add To Cart
+                  {alreadyAdded === false && (
+                    <>
+                      <h3 className="product-heading">Quantity : </h3>
+                      <div className="quantity">
+                        <input
+                          type="number"
+                          name=""
+                          min={1}
+                          max={10}
+                          className="form-control"
+                          style={{ width: "100px" }}
+                          id=""
+                          onChange={(e) => setQuantity(e.target.value)}
+                          value={quantity}
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div
+                    className={
+                      alreadyAdded
+                        ? "ms-0"
+                        : "ms-5" +
+                          "product-heading-button d-flex align-items-center gap-30"
+                    }
+                  >
+                    <button
+                      className="buttonforwish border-0"
+                      // data-bs-toggle="modal"
+                      // data-bs-target="#staticBackdrop"
+                      onClick={() => {
+                        alreadyAdded ? navigate("/cart") : uploadCart();
+                      }}
+                      type="button"
+                    >
+                      {alreadyAdded ? "Go To Cart" : "Add To Cart"}
                     </button>
-                    <button className="signup">Buy it Now</button>
+                    {/* <button className="signup">Buy it Now</button> */}
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-15">
@@ -163,7 +243,7 @@ const SingleProduct = () => {
                     <b>5-10 business days!</b>
                   </p>
                 </div>
-                <div className="d-flex gap-10 align-items-center my-3">
+                <div className="d-flex gap-10 align-items-center my-3 prodlink">
                   <h3 className="product-heading">Product Link : </h3>
                   {/* <a
                     href="javascript:void(0)"
@@ -175,9 +255,7 @@ const SingleProduct = () => {
                   > */}
                   <button
                     onClick={() => {
-                      copyToClipboard(
-                        "https://www.bonkerscorner.com/product/black-tie-me-up-pants/#"
-                      );
+                      copyToClipboard(window.location.href);
                     }}
                   >
                     Copy Product Link
@@ -203,18 +281,11 @@ const SingleProduct = () => {
             <h4>Description</h4>
 
             <div className="bg-white p-3">
-              <p>
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book. It has
-                survived not only five centuries, but also the leap into
-                electronic typesetting, remaining essentially unchanged. It was
-                popularised in the 1960s with the release of Letraset sheets
-                containing Lorem Ipsum passages, and more recently with desktop
-                publishing software like Aldus PageMaker including versions of
-                Lorem Ipsum.
-              </p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: productState?.description,
+                }}
+              ></p>
             </div>
           </div>
         </div>
@@ -231,7 +302,7 @@ const SingleProduct = () => {
                     <ReactStars
                       count={5}
                       size={24}
-                      value={4}
+                      value={productState?.totalrating}
                       edit={false}
                       activeColor="#ffd700"
                     />

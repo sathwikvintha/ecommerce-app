@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useDebugValue, useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
 import wishlist from "../images/wishlist.svg";
 import profile from "../images/profile.svg";
 import cart from "../images/cart.svg";
 import menu from "../images/menu.svg";
+import { useDispatch, useSelector } from "react-redux";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const cartState = useSelector((state) => state?.auth?.cartProducts);
+  const authState = useSelector((state) => state.auth);
+  const [total, setTotal] = useState(null);
+  useEffect(() => {
+    let sum = 0;
+    for (let index = 0; index < cartState?.length; index++) {
+      sum =
+        sum +
+        Number(cartState[index].quantity) * Number(cartState[index].price);
+      setTotal(sum);
+    }
+  });
   return (
     <>
       {/* <header className="header-top-strip py-3">
@@ -69,21 +83,29 @@ const Header = () => {
                     className="d-flex align-items-center gap-15 text-white"
                   >
                     <img src={profile} alt="user" />
-                    <p className="mb-0">
-                      Log in <br /> My Account
-                    </p>
+                    {authState?.user === null ? (
+                      <p className="mb-0">
+                        Log in <br /> My Account
+                      </p>
+                    ) : (
+                      <p className="mb-0">
+                        Welcome {authState?.user?.firstname}
+                      </p>
+                    )}
                   </Link>
                 </div>
-                <div>
+                <div className="cartdetailsshow flex">
                   <Link
                     to="/cart"
                     className="d-flex align-items-center gap-10 text-white"
                   >
                     <img src={cart} alt="cart" />
                     <div className="d-flex flex-column gap-15">
-                      <spn className="badge bg-white text-dark">0</spn>
+                      <span className="badge bg-white text-dark align-items-center mt-0 ">
+                        {cartState?.length ? cartState?.length : 0}
+                      </span>
+                      <p>₹ {total ? total : 0}</p>
                     </div>
-                    <p>₹ 2000</p>
                   </Link>
                 </div>
               </div>

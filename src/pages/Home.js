@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Flickity } from "flickity";
 import Marquee from "react-fast-marquee";
 import ProductCard1 from "../components/ProductCard1";
@@ -42,8 +42,34 @@ import animetshirtback from "../images/animetshirt-back.png";
 import womenanime from "../images/womenanime.png";
 import womenanimeback from "../images/womenanime-back.png";
 import Container from "../components/Container";
+import { useState, useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../features/products/productSlice";
+
+import { useLocation } from "react-router-dom";
+import wish from "../images/wish.svg";
+import view from "../images/view.svg";
+import addcart from "../images/add-cart.svg";
+import featured1 from "../images/featured1.png";
+import featured1back from "../images/featured1-back.png";
+import { addToWishlist } from "../features/products/productSlice";
 
 const Home = () => {
+  const productState = useSelector((state) => state?.product?.product);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    getallProducts();
+  }, []);
+
+  const getallProducts = () => {
+    dispatch(getAllProducts());
+  };
+
+  const addToWish = (id, config3) => {
+    dispatch(addToWishlist({ id, config3 }));
+  };
+
   return (
     <>
       <Container class1="home-wrapper-1 py-5">
@@ -223,7 +249,81 @@ const Home = () => {
           <div className="col-12">
             <h3 className="section-heading">Featured Collection</h3>
           </div>
-          <ProductCard1 />
+        </div>
+        <div className="row">
+          {productState &&
+            productState?.map((item, index) => {
+              if (item.tags[0] === "featured") {
+                return (
+                  <div key={index} className={"col-3"}>
+                    <div
+                      // to={`${
+                      //   location.pathname == "/"
+                      //     ? "/product/:id"
+                      //     : location.pathname == "/product/:id"
+                      //     ? "/product/:id"
+                      //     : ":id"
+                      // }`}
+
+                      className="product-card position-relative"
+                    >
+                      <div className="wishlist-icon position-absolute">
+                        <button
+                          className="border-0 bg-transparent"
+                          onClick={(e) => {
+                            addToWish(item?._id);
+                          }}
+                        >
+                          <img src={wish} alt="wishlist" />
+                        </button>
+                      </div>
+                      <div className="product-image">
+                        <img
+                          src={item?.images[0].url}
+                          className="img-fluid"
+                          alt="productimage"
+                        />
+                        <img
+                          src={item?.images[1].url}
+                          className="img-fluid"
+                          alt="productimage"
+                        />
+                      </div>
+
+                      <div className="product-details align-items-center">
+                        <h6 className="brand">{item?.brand}</h6>
+                        {/* <h5 className="product-title align-items-center d-flex"> */}
+
+                        <h5 className="product-title align-items-center">
+                          {item?.title}
+                        </h5>
+
+                        <p className="price ">
+                          <span className="overline">
+                            ₹ `{item?.price * 2}`
+                          </span>{" "}
+                          <span className="realprice">₹ {item?.price}</span>
+                        </p>
+                      </div>
+                      <div className="action-bar position-absolute">
+                        <div className="d-flex flex-column gap-15">
+                          <button className="border-0 bg-transparent">
+                            <img
+                              onClick={() => navigate("/product/" + item?._id)}
+                              src={view}
+                              alt="addcart"
+                            />
+                          </button>
+                          <button className="border-0 bg-transparent">
+                            <img src={addcart} alt="addcart" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+            })}
         </div>
       </Container>
 
