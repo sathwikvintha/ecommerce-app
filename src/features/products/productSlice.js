@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"; /**🎉 React-Toastify 
+allows you to add notifications to your app with ease. */
 import { productService } from "./productService";
 
 export const getAllProducts = createAsyncThunk(
   "product/get",
-  async (thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      return await productService.getProducts();
+      return await productService.getProducts(data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -35,6 +36,17 @@ export const addToWishlist = createAsyncThunk(
   }
 );
 
+export const addRating = createAsyncThunk(
+  "product/rating",
+  async (data, thunkAPI) => {
+    try {
+      return await productService.rateProduct(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 const productState = {
   product: "",
   isError: false,
@@ -42,7 +54,10 @@ const productState = {
   isLoading: false,
   message: "",
 };
-
+/**createSlice A function that accepts an initial state, 
+an object of reducer functions, and a "slice name", 
+and automatically generates action 
+creators and action types that correspond to the reducers and state. */
 export const productSlice = createSlice({
   name: "product",
   initialState: productState,
@@ -88,9 +103,28 @@ export const productSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.singleproduct = action.payload;
-        state.message = "Product Fetched Successfully";
+        state.message = "Product Fetched Successfully !";
       })
       .addCase(getAProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(addRating.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addRating.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.rating = action.payload;
+        state.message = "Rating Added Successfully !";
+        if (state.isSuccess) {
+          toast.success("Rating Added Successfully");
+        }
+      })
+      .addCase(addRating.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

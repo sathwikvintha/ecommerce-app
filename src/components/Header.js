@@ -1,17 +1,26 @@
 import React, { useDebugValue, useEffect, useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
 import wishlist from "../images/wishlist.svg";
 import profile from "../images/profile.svg";
 import cart from "../images/cart.svg";
 import menu from "../images/menu.svg";
 import { useDispatch, useSelector } from "react-redux";
+import { Typeahead } from "react-bootstrap-typeahead";
+import "react-bootstrap-typeahead/css/Typeahead.css";
+
+import { getAProduct } from "../features/products/productSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state?.auth?.cartProducts);
   const authState = useSelector((state) => state.auth);
   const [total, setTotal] = useState(null);
+  const navigate = useNavigate();
+  const productState = useSelector((state) => state?.product?.product);
+  const [productOpt, setProductOpt] = useState([]);
+  const [paginate, setPaginate] = useState(true);
+
   useEffect(() => {
     let sum = 0;
     for (let index = 0; index < cartState?.length; index++) {
@@ -20,7 +29,21 @@ const Header = () => {
         Number(cartState[index].quantity) * Number(cartState[index].price);
       setTotal(sum);
     }
-  });
+  }, [cartState]);
+
+  useEffect(() => {
+    let data = [];
+    for (let index = 0; index < productState.length; index++) {
+      const element = productState[index];
+      data.push({ id: index, prod: element?._id, name: element?.title });
+    }
+    setProductOpt(data);
+  }, [productState]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
   return (
     <>
       {/* <header className="header-top-strip py-3">
@@ -52,12 +75,20 @@ const Header = () => {
             </div>
             <div className="col-5">
               <div className="input-group">
-                <input
-                  type="text"
-                  class="form-control py-2"
-                  placeholder="Search for products, brands and more"
-                  aria-label="Search for products, brands and more"
-                  aria-describedby="basic-addon2"
+                <Typeahead
+                  id="pagination-example"
+                  onPaginate={() => console.log("Results paginated")}
+                  onChange={(selected) => {
+                    // selected is an array of items found that match the search strings
+                    console.log(selected);
+                    navigate(`/product/${selected[0]?.prod}`);
+                    dispatch(getAProduct(selected[0]?.prod));
+                  }}
+                  options={productOpt}
+                  paginate={paginate}
+                  labelKey={"name"} // The labelKey property specifies the name of a field containing a key for searching the resource bundle that contains the label for a component of the screen display.
+                  minLength={2}
+                  placeholder="Search for Products here..."
                 />
                 <span className="input-group-text p-3" id="basic-addon2">
                   <BsSearch className="fs-6" />
@@ -79,7 +110,7 @@ const Header = () => {
                 </div>
                 <div>
                   <Link
-                    to="/login"
+                    to={authState?.user === null ? "/login" : "/my-profile"}
                     className="d-flex align-items-center gap-15 text-white"
                   >
                     <img src={profile} alt="user" />
@@ -154,7 +185,15 @@ const Header = () => {
                   <div className="d-flex align-items-center gap-15">
                     <NavLink to="/">Home</NavLink>
                     <NavLink to="/product">Our Store</NavLink>
+                    <NavLink to="/my-orders">My Orders</NavLink>
                     <NavLink to="/contact">Contact</NavLink>
+                    <button
+                      onClick={handleLogout}
+                      className="logoutpress border border-0 bg-transparent text-white"
+                      type="button"
+                    >
+                      Log Out
+                    </button>
                   </div>
                 </div>
               </div>

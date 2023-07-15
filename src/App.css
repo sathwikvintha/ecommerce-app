@@ -931,3 +931,23 @@ height: 20px;
   background-color: #febd69;
 }
 
+.clickme:hover {
+cursor: pointer;
+}
+
+.profileview .errors{
+  color: red;
+}
+
+.logoutpress{
+  align-items: end;
+  margin-left: 440px;
+  border-radius: 5px;
+    background-color: red;
+    color: red;
+    width: 160px;
+    height: 40px;
+    border-color: white;
+
+}
+

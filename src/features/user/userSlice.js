@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import { authService } from "./userService";
+import { toast } from "react-toastify";
 
 export const registerUser = createAsyncThunk(
   "auth/register",
@@ -12,7 +12,6 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
-
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (userData, thunkAPI) => {
@@ -37,43 +36,9 @@ export const getUserProductWishlist = createAsyncThunk(
 
 export const addProdToCart = createAsyncThunk(
   "user/cart/add",
-  async (cartData, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      return await authService.addToCart(cartData);
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error);
-    }
-  }
-);
-
-export const getUserCart = createAsyncThunk(
-  "user/cart/get",
-  async (thunkAPI) => {
-    try {
-      // console.log(data);
-      return await authService.getCart();
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error);
-    }
-  }
-);
-
-export const deleteCartProduct = createAsyncThunk(
-  "user/cart/product/delete",
-  async (cartItemId, thunkAPI) => {
-    try {
-      return await authService.removeProductFromCart(cartItemId);
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error);
-    }
-  }
-);
-
-export const updateCartProduct = createAsyncThunk(
-  "user/cart/product/update",
-  async (cartDetail, thunkAPI) => {
-    try {
-      return await authService.updateProductFromCart(cartDetail);
+      return await authService.addToCart(data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -91,18 +56,117 @@ export const createAnOrder = createAsyncThunk(
   }
 );
 
-const getCustomerfromLocalStorage = localStorage.getItem("customer")
+export const getUserCart = createAsyncThunk(
+  "user/cart/get",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.getCart(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteUserCart = createAsyncThunk(
+  "user/cart/delete",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.emptyCart(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getOrders = createAsyncThunk(
+  "user/order/get",
+  async (thunkAPI) => {
+    try {
+      return await authService.getUserOrders();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteCartProduct = createAsyncThunk(
+  "user/cart/product/delete",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.removeProductFromCart(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const updateCartProduct = createAsyncThunk(
+  "user/cart/product/update",
+  async (cartDetail, thunkAPI) => {
+    try {
+      return await authService.updateProductFromCart(cartDetail);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  "user/profile/update",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.updateUser(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const forgotPasswordToken = createAsyncThunk(
+  "user/password/token",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.forgotPassToken(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "user/password/reset",
+  async (data, thunkAPI) => {
+    try {
+      return await authService.resetPass(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const resetState = createAction("Reset_all"); /**The action type to use 
+for created actions.
+A utility function to 
+create an action creator for the given action type string */
+
+const getCustomerFromLocalStorage = localStorage.getItem("customer")
   ? JSON.parse(localStorage.getItem("customer"))
   : null;
 
+console.log(getCustomerFromLocalStorage);
+
 const initialState = {
-  user: getCustomerfromLocalStorage,
+  user: getCustomerFromLocalStorage,
   isError: false,
   isSuccess: false,
   isLoading: false,
   message: "",
 };
 
+/**createSlice A function that accepts an initial state, 
+an object of reducer functions, and a "slice name", 
+and automatically generates action 
+creators and action types that correspond to the reducers and state. */
 export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
@@ -127,7 +191,7 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.message = action.error;
         if (state.isError === true) {
-          toast.error(action.error);
+          toast.error(action.payload.response.data.message);
         }
       })
       .addCase(loginUser.pending, (state) => {
@@ -138,9 +202,11 @@ export const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.user = action.payload;
+        console.log(action.payload);
         if (state.isSuccess === true) {
-          localStorage.setItem("token", action.payload.token);
-          toast.info("User Logged In Successfully");
+          //  Save the logged in user's token
+          // localStorage.setItem("token", action.payload.token);
+          toast.info("User logged in Successfully");
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -149,7 +215,7 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.message = action.error;
         if (state.isError === true) {
-          toast.error(action.error);
+          toast.error(action.payload.response.data.message);
         }
       })
       .addCase(getUserProductWishlist.pending, (state) => {
@@ -193,7 +259,7 @@ export const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.cartProducts = action.payload;
-        // console.log(action.payload);
+        console.log(action.payload);
       })
       .addCase(getUserCart.rejected, (state, action) => {
         state.isLoading = false;
@@ -263,7 +329,111 @@ export const authSlice = createSlice({
         if (state.isSuccess === false) {
           toast.error("Something Went Wrong!");
         }
-      });
+      })
+      .addCase(getOrders.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOrders.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.getorderedProduct = action.payload;
+      })
+      .addCase(getOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.updatedUser = action.payload;
+        console.log(action.payload);
+        let currentUserData = JSON.parse(localStorage.getItem("customer"));
+        let newUserData = {
+          _id: currentUserData?._id,
+          token: currentUserData?.token,
+          firstName: action?.payload?.firstName,
+          lastName: action?.payload?.lastName,
+          email: action?.payload?.email,
+          mobile: action?.payload?.mobile,
+        };
+        localStorage.setItem("customer", JSON.stringify(newUserData));
+        state.user = newUserData;
+        toast.success("Profile Updated Successfully");
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+        if (state.isSuccess === false) {
+          toast.error("Something Went Wrong!");
+        }
+      })
+      .addCase(forgotPasswordToken.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(forgotPasswordToken.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.token = action.payload;
+        if (state.isSuccess) {
+          toast.success("Forgot Password Email Sent Successfully");
+        }
+      })
+      .addCase(forgotPasswordToken.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+        if (state.isSuccess === false) {
+          toast.error("Something Went Wrong!");
+        }
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.pass = action.payload;
+        if (state.isSuccess) {
+          toast.success("Password Updated Successfully");
+        }
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+        if (state.isSuccess === false) {
+          toast.error("Something Went Wrong!");
+        }
+      })
+      .addCase(deleteUserCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteUserCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deletedCart = action.payload;
+      })
+      .addCase(deleteUserCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(resetState, () => initialState);
   },
 });
 

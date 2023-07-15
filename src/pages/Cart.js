@@ -79,7 +79,7 @@ const Cart = () => {
               <h4 className="cart-col-3">Quantity</h4>
               <h4 className="cart-col-4">Total</h4>
             </div>
-            {userCartState &&
+            {userCartState?.length > 0 &&
               userCartState?.map((item, index) => {
                 return (
                   <div
@@ -121,15 +121,11 @@ const Cart = () => {
                         <input
                           className="form-control"
                           type="number"
-                          name=""
+                          name={"quantity" + item?._id}
                           id=""
                           min={1}
                           max={20}
-                          value={
-                            productUpdateDetail?.quantity
-                              ? productUpdateDetail?.quantity
-                              : item?.quantity
-                          }
+                          value={item?.quantity}
                           onChange={(e) => {
                             setProductUpdateDetail({
                               cartItemId: item?._id,

@@ -153,8 +153,8 @@ const Checkout = () => {
         );
 
         setPaymentInfo({
-          razorpayPaymentId: response.razorpay_payment_id,
-          razorpayOrderId: response.razorpay_order_id,
+          razorpayPaymentId: result.razorpay_payment_id,
+          razorpayOrderId: result.razorpay_order_id,
         });
         // alert(result);
 
@@ -380,7 +380,7 @@ const Checkout = () => {
                       className="d-flex gap-10 align-items-center"
                     >
                       <div className="w-75 mb-2 d-flex gap-10">
-                        <div className="w-25 position-relative">
+                        <div className="w-25 position-relative checkoutpage">
                           <span
                             style={{ top: "0px", right: "2px" }}
                             className="badge bg-secondary text-white rounded-circle p-2 position-absolute"

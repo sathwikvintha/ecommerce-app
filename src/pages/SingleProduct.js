@@ -11,7 +11,11 @@ import { AiOutlineHeart } from "react-icons/ai";
 import Container from "../components/Container";
 import { useDispatch, useSelector } from "react-redux";
 import Color from "./../components/Color";
-import { getAProduct } from "../features/products/productSlice";
+import {
+  addRating,
+  getAProduct,
+  getAllProducts,
+} from "../features/products/productSlice";
 import { toast } from "react-toastify";
 import { addProdToCart, getUserCart } from "../features/user/userSlice";
 
@@ -24,14 +28,29 @@ const SingleProduct = () => {
   const navigate = useNavigate();
   const getProductId = location.pathname.split("/")[2];
   const dispatch = useDispatch();
-  const productState = useSelector((state) => state.product.singleproduct);
+  const productState = useSelector((state) => state?.product?.singleproduct);
+  const productsState = useSelector((state) => state?.product?.product);
   console.log(productState);
 
-  const cartState = useSelector((state) => state.auth.cartProducts);
+  const cartState = useSelector((state) => state?.auth?.cartProducts);
+
+  const getTokenFromLocalStorage = localStorage.getItem("customer")
+    ? JSON.parse(localStorage.getItem("customer"))
+    : null;
+
+  const config2 = {
+    headers: {
+      Authorization: `Bearer ${
+        getTokenFromLocalStorage !== null ? getTokenFromLocalStorage?.token : ""
+      }`,
+      Accept: "application/json",
+    },
+  };
 
   useEffect(() => {
     dispatch(getAProduct(getProductId));
-    dispatch(getUserCart());
+    //dispatch(getUserCart());
+    dispatch(getAllProducts());
   }, []);
 
   useEffect(() => {
@@ -79,10 +98,51 @@ const SingleProduct = () => {
     textField.remove();
   };
 
+  const closeModel = () => {};
+
+  const [popularProduct, setProductProduct] = useState([]);
+  useEffect(() => {
+    let data = [];
+    for (let index = 0; index < productsState.length; index++) {
+      const element = productsState[index];
+      if (element.tags === "featured") {
+        data.push(element);
+      }
+      setProductProduct(data);
+    }
+  }, [productState]);
+  console.log(popularProduct);
+
+  const [star, setStar] = useState(null);
+  const [starNum, setStarNum] = useState(null);
+  const [comment, setComment] = useState(0);
+
+  console.log(star);
+  const addRatingToProduct = () => {
+    if (star === null) {
+      toast.error("Please add star rating");
+      return false;
+    } else if (comment === null) {
+      toast.error("Please Write Review About the Product.");
+      return false;
+    } else {
+      dispatch(
+        addRating({
+          data: { star: star, comment: comment, prodId: getProductId },
+          config2,
+        })
+      );
+      setTimeout(() => {
+        dispatch(getAProduct(getProductId));
+      }, 500);
+    }
+    return false;
+  };
+
   return (
     <>
       <Meta title={"Product Name"} />
-      <BreadCrumb title="Product Name" />
+      <BreadCrumb title={productState?.title} />
       <Container class1="main-product-wrapper py-5 home-wrapper-2">
         <div className="row">
           <div className="col-6">
@@ -293,7 +353,7 @@ const SingleProduct = () => {
       <Container class1="reviews-wrapper home-wrapper-2">
         <div className="row">
           <div className="col-12">
-            <h3>Reviews</h3>
+            <h3 id="review">Reviews</h3>
             <div className="review-inner-wrapper">
               <div className="review-head d-flex justify-content-between align-items-end">
                 <div>
@@ -306,64 +366,80 @@ const SingleProduct = () => {
                       edit={false}
                       activeColor="#ffd700"
                     />
-                    <p className="mb-0">Based on 2 Reviews</p>
+                    <p className="mb-0">
+                      Based on {productState?.ratings?.length} Reviews
+                    </p>
                   </div>
                 </div>
                 {orderedProduct && (
                   <div>
-                    <a className="text-dark text-decoration-underline" href="#">
-                      Add on a Review
+                    <a className="text-dark text-decoration-underline" href="">
+                      Write a Review
                     </a>
                   </div>
                 )}
               </div>
-              <div id="review" className="review-form py-4">
+              <div className="review-form py-4">
                 <h4>Write a Review</h4>
-                <form action="" className="d-flex flex-column gap-15">
-                  <div>
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={4}
-                      edit={true}
-                      activeColor="#ffd700"
-                    />
-                  </div>
-                  <div>
-                    <textarea
-                      name=""
-                      id=""
-                      className="w-100 form-control"
-                      cols="30"
-                      rows="5"
-                      placeholder="Comments"
-                    ></textarea>
-                  </div>
-                  <div className="d-flex justify-content-center">
-                    <button className="button border-0">Submit Review</button>
-                  </div>
-                </form>
+                <div>
+                  <ReactStars
+                    count={5}
+                    size={24}
+                    value={0}
+                    edit={true}
+                    activeColor="#ffd700"
+                    onChange={(e) => {
+                      //console.log(e);
+                      setStar(e);
+                    }}
+                  />
+                </div>
+                <div>
+                  <textarea
+                    name=""
+                    className="w-100 form-control"
+                    id=""
+                    cols="30"
+                    rows="4"
+                    placeholder="Comments"
+                    onChange={(e) => {
+                      //console.log(e);
+                      setComment(e.target.value);
+                    }}
+                  ></textarea>
+                </div>
+                <div className="d-flex justify-content-end mt-3">
+                  <button
+                    onClick={addRatingToProduct}
+                    className="button border-0"
+                    type="submit"
+                  >
+                    Submit Review
+                  </button>
+                </div>
               </div>
               <div className="reviews mt-4">
-                <div className="review">
-                  <div className="d-flex gap-10 align-items-center">
-                    <h6 className="mb-0">Sathwik</h6>
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={4}
-                      edit={false}
-                      activeColor="#ffd700"
-                    />
-                  </div>
-                  <p className="mt-3">
-                    The standard chunk of Lorem Ipsum used since the 1500s is
-                    reproduced below for those interested. Sections 1.10.32 and
-                    1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are
-                    also reproduced in their exact original form, accompanied by
-                    English versions from the 1914 translation by H. Rackham
-                  </p>
-                </div>
+                {productState?.ratings ? (
+                  productState?.ratings?.map((item, index) => {
+                    return (
+                      <div key={index} className="review">
+                        <div className="d-flex gap-10 align-items-center">
+                          {/**<h6 className="mb-0">mydev847</h6>*/}
+                          <ReactStars
+                            count={5}
+                            size={24}
+                            value={item?.star}
+                            edit={false}
+                            activeColor="#ffd700"
+                          />
+                        </div>
+                        <p className="mt-3">{item?.comment}</p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="fs-3 text-center text-secondary">No Comment</p>
+                )}
               </div>
             </div>
           </div>
